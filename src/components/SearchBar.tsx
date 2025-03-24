@@ -7,6 +7,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const SearchBar = () => {
   const [selectedTab, setSelectedTab] = useState('hotels');
@@ -93,17 +100,18 @@ const SearchBar = () => {
                 <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                   <Users className="h-5 w-5 text-gray-400" />
                 </div>
-                <select
-                  className="pl-10 pr-4 py-3 w-full border rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-brand-blue appearance-none"
-                  value={guests}
-                  onChange={(e) => setGuests(parseInt(e.target.value))}
-                >
-                  <option value={1}>1 Guest</option>
-                  <option value={2}>2 Guests</option>
-                  <option value={3}>3 Guests</option>
-                  <option value={4}>4 Guests</option>
-                  <option value={5}>5+ Guests</option>
-                </select>
+                <Select value={guests.toString()} onValueChange={(value) => setGuests(parseInt(value))}>
+                  <SelectTrigger className="pl-10">
+                    <SelectValue placeholder="Number of guests" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Guest</SelectItem>
+                    <SelectItem value="2">2 Guests</SelectItem>
+                    <SelectItem value="3">3 Guests</SelectItem>
+                    <SelectItem value="4">4 Guests</SelectItem>
+                    <SelectItem value="5">5+ Guests</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <Button 

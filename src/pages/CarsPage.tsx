@@ -106,7 +106,7 @@ const CarsPage = () => {
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all-categories">All Categories</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
@@ -122,7 +122,7 @@ const CarsPage = () => {
                   <SelectValue placeholder="Transmission" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Transmissions</SelectItem>
+                  <SelectItem value="all-transmissions">All Transmissions</SelectItem>
                   <SelectItem value="Automatic">Automatic</SelectItem>
                   <SelectItem value="Manual">Manual</SelectItem>
                 </SelectContent>
