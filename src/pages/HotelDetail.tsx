@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Star, Calendar, Users, Check, Coffee, Wifi, Tv, Utensils, Car, Pool, Snowflake } from 'lucide-react';
+import { MapPin, Star, Calendar, Users, Check, Coffee, Wifi, Tv, Utensils, Car, Snowflake } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 
 const amenityIcons: Record<string, any> = {
   'Free WiFi': Wifi,
-  'Pool': Pool,
+  'Pool': Coffee, // Changed from Pool to Coffee as Pool isn't available in lucide-react
   'Restaurant': Utensils,
   'Room Service': Coffee,
   'Parking': Car,
