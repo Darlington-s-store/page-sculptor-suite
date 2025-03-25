@@ -1,7 +1,10 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
+import { userService } from '@/services/db';
+import { User as DbUser } from '@/services/db/models';
 
+// Frontend User type (without password)
 interface User {
   id: string;
   firstName: string;
@@ -32,18 +35,6 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Mock user data
-const mockUsers = [
-  {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com',
-    password: 'password123',
-    phone: '555-123-4567'
-  }
-];
-
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -67,12 +58,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return new Promise<void>((resolve, reject) => {
       // Simulate API call delay
       setTimeout(() => {
-        // Find user in mock data
-        const foundUser = mockUsers.find(u => u.email === email && u.password === password);
+        // Find user in database
+        const authenticatedUser = userService.authenticateUser(email, password);
         
-        if (foundUser) {
-          // Create a sanitized user object (without password)
-          const { password, ...userWithoutPassword } = foundUser;
+        if (authenticatedUser) {
+          // Remove password from user object
+          const { password, ...userWithoutPassword } = authenticatedUser;
           
           // Set user in state and localStorage
           setUser(userWithoutPassword);
@@ -92,27 +83,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Simulate API call delay
       setTimeout(() => {
         // Check if user already exists
-        const existingUser = mockUsers.find(u => u.email === email);
+        const existingUser = userService.getUserByEmail(email);
         
         if (existingUser) {
           reject(new Error('User already exists'));
           return;
         }
         
-        // Create new user with a default phone value
-        const newUser = {
-          id: `${mockUsers.length + 1}`,
+        // Create new user
+        const newUser = userService.createUser({
           firstName,
           lastName,
           email,
           password,
-          phone: '' // Add a default empty string for phone
-        };
+          phone: '' // Default empty phone
+        });
         
-        // In a real app, this would be an API call to register the user
-        mockUsers.push(newUser);
-        
-        // Create a sanitized user object (without password)
+        // Remove password from user object
         const { password: _, ...userWithoutPassword } = newUser;
         
         // Set user in state and localStorage
