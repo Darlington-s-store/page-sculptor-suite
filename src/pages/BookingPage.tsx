@@ -11,7 +11,10 @@ import {
   Shield, 
   Check,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Smartphone,
+  Building,
+  AlertCircle
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -38,15 +41,22 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import BookingSummary from '@/components/BookingSummary';
+import LoginForm from '@/components/auth/LoginForm';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useAuth } from '@/contexts/AuthContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Mock data
 import { cars } from '@/data/carsData';
+import { hotels } from '@/data/hotelData';
+import { tours } from '@/data/tourData';
 
 const BookingPage = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const navigate = useNavigate();
   const [item, setItem] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const { user, isAuthenticated } = useAuth();
   
   // Booking form state
   const [bookingData, setBookingData] = useState({
@@ -60,11 +70,33 @@ const BookingPage = () => {
     dropoffLocation: '',
     specialRequests: '',
     insuranceOption: 'basic',
-    agreeToTerms: false
+    paymentMethod: 'card',
+    cardNumber: '',
+    cardExpiry: '',
+    cardCvv: '',
+    mobileNumber: '',
+    mobileProvider: 'mtn',
+    bankAccountNumber: '',
+    bankName: '',
+    agreeToTerms: false,
+    paymentCompleted: false
   });
   
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = isAuthenticated ? 3 : 4; // Add an extra step if not authenticated
+  
+  // Fill user data if authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setBookingData(prev => ({
+        ...prev,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      }));
+    }
+  }, [isAuthenticated, user]);
   
   // Fetch item data based on type and id
   useEffect(() => {
@@ -74,8 +106,11 @@ const BookingPage = () => {
     const timer = setTimeout(() => {
       if (type === 'car') {
         data = cars.find(car => car.id === id);
+      } else if (type === 'hotel') {
+        data = hotels.find(hotel => hotel.id === id);
+      } else if (type === 'tour') {
+        data = tours.find(tour => tour.id === id);
       }
-      // Add other types here when needed (hotels, tours, etc.)
       
       setItem(data);
       setLoading(false);
@@ -98,6 +133,13 @@ const BookingPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // If not authenticated and at step 1, move to login step
+    if (!isAuthenticated && currentStep === 1) {
+      setCurrentStep(2);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    
     if (currentStep < totalSteps) {
       // Validate current step
       if (currentStep === 1) {
@@ -109,7 +151,7 @@ const BookingPage = () => {
           toast.error("End date cannot be before start date");
           return;
         }
-      } else if (currentStep === 2) {
+      } else if ((isAuthenticated && currentStep === 2) || (!isAuthenticated && currentStep === 3)) {
         if (!bookingData.firstName || !bookingData.lastName || !bookingData.email || !bookingData.phone) {
           toast.error("Please fill in all required fields");
           return;
@@ -127,7 +169,12 @@ const BookingPage = () => {
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      // Final submission
+      // Final submission - validate payment and terms
+      if (!bookingData.paymentCompleted) {
+        toast.error("Please complete the payment process");
+        return;
+      }
+      
       if (!bookingData.agreeToTerms) {
         toast.error("Please agree to the terms and conditions");
         return;
@@ -145,6 +192,37 @@ const BookingPage = () => {
         navigate('/');
       }, 2000);
     }
+  };
+  
+  // Simulate payment processing
+  const handleProcessPayment = () => {
+    toast.info("Processing payment...");
+    
+    // Validate payment details
+    if (bookingData.paymentMethod === 'card') {
+      if (!bookingData.cardNumber || !bookingData.cardExpiry || !bookingData.cardCvv) {
+        toast.error("Please fill in all card details");
+        return;
+      }
+    } else if (bookingData.paymentMethod === 'mobile') {
+      if (!bookingData.mobileNumber) {
+        toast.error("Please enter your mobile number");
+        return;
+      }
+    } else if (bookingData.paymentMethod === 'bank') {
+      if (!bookingData.bankAccountNumber || !bookingData.bankName) {
+        toast.error("Please fill in all bank details");
+        return;
+      }
+    }
+    
+    // Simulate payment processing delay
+    setTimeout(() => {
+      setBookingData({ ...bookingData, paymentCompleted: true });
+      toast.success("Payment successful!", {
+        description: "Your payment has been processed successfully."
+      });
+    }, 1500);
   };
   
   if (loading) {
@@ -205,12 +283,32 @@ const BookingPage = () => {
         serviceFee,
         total: basePrice + insuranceCost + serviceFee
       };
+    } else if (type === 'hotel') {
+      const basePrice = item.price * duration;
+      const serviceFee = 15;
+      const taxFee = basePrice * 0.1; // 10% tax
+      
+      return {
+        basePrice,
+        serviceFee,
+        taxFee,
+        total: basePrice + serviceFee + taxFee
+      };
+    } else if (type === 'tour') {
+      // For tours, usually a flat price per person
+      const basePrice = item.price;
+      const serviceFee = 10;
+      
+      return {
+        basePrice,
+        serviceFee,
+        total: basePrice + serviceFee
+      };
     }
     
-    // Add other types of calculations here
+    // Default return
     return {
       basePrice: 0,
-      insuranceCost: 0,
       serviceFee: 0,
       total: 0
     };
@@ -237,6 +335,14 @@ const BookingPage = () => {
             <div className={`h-8 w-8 rounded-full flex items-center justify-center ${currentStep >= 3 ? 'bg-white text-blue-600' : 'bg-gray-300 text-gray-600'}`}>
               3
             </div>
+            {!isAuthenticated && (
+              <>
+                <div className={`h-1 w-16 ${currentStep >= 4 ? 'bg-white' : 'bg-gray-300'}`}></div>
+                <div className={`h-8 w-8 rounded-full flex items-center justify-center ${currentStep >= 4 ? 'bg-white text-blue-600' : 'bg-gray-300 text-gray-600'}`}>
+                  4
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -254,7 +360,7 @@ const BookingPage = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       <div className="space-y-2">
-                        <Label htmlFor="startDate">Pickup Date</Label>
+                        <Label htmlFor="startDate">{type === 'car' ? 'Pickup Date' : 'Check-in Date'}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -286,7 +392,7 @@ const BookingPage = () => {
                       </div>
                       
                       <div className="space-y-2">
-                        <Label htmlFor="endDate">Return Date</Label>
+                        <Label htmlFor="endDate">{type === 'car' ? 'Return Date' : 'Check-out Date'}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -392,8 +498,24 @@ const BookingPage = () => {
                 </AnimatedSection>
               )}
               
-              {/* Step 2: Personal Information */}
-              {currentStep === 2 && (
+              {/* Login Step (Only shown if not authenticated) */}
+              {!isAuthenticated && currentStep === 2 && (
+                <AnimatedSection>
+                  <div className="bg-white rounded-xl shadow-md overflow-hidden p-6 mb-6">
+                    <h2 className="text-xl font-bold mb-4">Sign In Required</h2>
+                    <p className="mb-4 text-gray-600">
+                      Please sign in or create an account to continue with your booking.
+                    </p>
+                    <LoginForm onSuccess={() => {
+                      setCurrentStep(currentStep + 1);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }} />
+                  </div>
+                </AnimatedSection>
+              )}
+              
+              {/* Step 2/3: Personal Information (depending on authentication status) */}
+              {((isAuthenticated && currentStep === 2) || (!isAuthenticated && currentStep === 3)) && (
                 <AnimatedSection>
                   <div className="bg-white rounded-xl shadow-md overflow-hidden p-6 mb-6">
                     <h2 className="text-xl font-bold mb-4">Personal Information</h2>
@@ -465,11 +587,11 @@ const BookingPage = () => {
                 </AnimatedSection>
               )}
               
-              {/* Step 3: Payment and Confirmation */}
-              {currentStep === 3 && (
+              {/* Step 3/4: Payment and Confirmation */}
+              {((isAuthenticated && currentStep === 3) || (!isAuthenticated && currentStep === 4)) && (
                 <AnimatedSection>
                   <div className="bg-white rounded-xl shadow-md overflow-hidden p-6 mb-6">
-                    <h2 className="text-xl font-bold mb-4">Review and Confirm</h2>
+                    <h2 className="text-xl font-bold mb-4">Payment and Confirmation</h2>
                     
                     <div className="mb-6">
                       <h3 className="font-medium mb-2">Booking Summary</h3>
@@ -485,7 +607,9 @@ const BookingPage = () => {
                           <div>
                             <h4 className="font-medium">{item.name || item.title}</h4>
                             <p className="text-sm text-gray-600">
-                              {type === 'car' ? `${item.category} - ${item.transmission}` : ''}
+                              {type === 'car' ? `${item.category} - ${item.transmission}` : 
+                               type === 'hotel' ? `${item.location} - ${item.rating} Stars` :
+                               type === 'tour' ? `${item.location} - ${item.duration}` : ''}
                             </p>
                           </div>
                         </div>
@@ -567,6 +691,13 @@ const BookingPage = () => {
                             </div>
                           )}
                           
+                          {type === 'hotel' && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Tax (10%)</span>
+                              <span>${priceDetails.taxFee}</span>
+                            </div>
+                          )}
+                          
                           <div className="flex justify-between">
                             <span className="text-gray-600">Service Fee</span>
                             <span>${priceDetails.serviceFee}</span>
@@ -579,66 +710,213 @@ const BookingPage = () => {
                         </div>
                       </div>
                       
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <h4 className="font-medium mb-2">Payment Method</h4>
-                        <p className="text-sm text-gray-600 mb-4">
-                          Your card will not be charged until you pick up the {type}.
-                        </p>
+                      <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                        <h4 className="font-medium mb-4">Select Payment Method</h4>
                         
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-1 gap-2">
-                            <Label htmlFor="cardName">Name on Card</Label>
-                            <Input 
-                              id="cardName"
-                              name="cardName"
-                              placeholder="As it appears on your card"
-                              disabled
-                              defaultValue={`${bookingData.firstName} ${bookingData.lastName}`}
-                            />
-                          </div>
+                        <Tabs 
+                          defaultValue="card" 
+                          className="w-full"
+                          onValueChange={(value) => setBookingData({...bookingData, paymentMethod: value})}
+                        >
+                          <TabsList className="grid grid-cols-4 w-full mb-4">
+                            <TabsTrigger value="card">Credit Card</TabsTrigger>
+                            <TabsTrigger value="mobile">Mobile Money</TabsTrigger>
+                            <TabsTrigger value="bank">Bank Transfer</TabsTrigger>
+                            <TabsTrigger value="paystack">Paystack</TabsTrigger>
+                          </TabsList>
                           
-                          <div className="grid grid-cols-1 gap-2">
-                            <Label htmlFor="cardNumber">Card Number</Label>
-                            <div className="relative">
+                          <TabsContent value="card" className="space-y-4">
+                            <div className="grid grid-cols-1 gap-2">
+                              <Label htmlFor="cardName">Name on Card</Label>
                               <Input 
-                                id="cardNumber"
-                                name="cardNumber"
-                                placeholder="0000 0000 0000 0000"
-                                disabled
-                                defaultValue="**** **** **** 1234"
+                                id="cardName"
+                                name="cardName"
+                                placeholder="As it appears on your card"
+                                defaultValue={`${bookingData.firstName} ${bookingData.lastName}`}
+                                disabled={bookingData.paymentCompleted}
                               />
-                              <CreditCard className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
                             </div>
-                          </div>
+                            
+                            <div className="grid grid-cols-1 gap-2">
+                              <Label htmlFor="cardNumber">Card Number</Label>
+                              <div className="relative">
+                                <Input 
+                                  id="cardNumber"
+                                  name="cardNumber"
+                                  placeholder="0000 0000 0000 0000"
+                                  value={bookingData.cardNumber}
+                                  onChange={handleInputChange}
+                                  disabled={bookingData.paymentCompleted}
+                                />
+                                <CreditCard className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-2">
+                                <Label htmlFor="cardExpiry">Expiry Date</Label>
+                                <Input 
+                                  id="cardExpiry"
+                                  name="cardExpiry"
+                                  placeholder="MM/YY"
+                                  value={bookingData.cardExpiry}
+                                  onChange={handleInputChange}
+                                  disabled={bookingData.paymentCompleted}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="cardCvv">CVV</Label>
+                                <Input 
+                                  id="cardCvv"
+                                  name="cardCvv"
+                                  placeholder="123"
+                                  value={bookingData.cardCvv}
+                                  onChange={handleInputChange}
+                                  disabled={bookingData.paymentCompleted}
+                                />
+                              </div>
+                            </div>
+                          </TabsContent>
                           
-                          <div className="grid grid-cols-2 gap-3">
+                          <TabsContent value="mobile" className="space-y-4">
                             <div className="space-y-2">
-                              <Label htmlFor="expiry">Expiry Date</Label>
-                              <Input 
-                                id="expiry"
-                                name="expiry"
-                                placeholder="MM/YY"
-                                disabled
-                                defaultValue="12/25"
+                              <Label htmlFor="mobileProvider">Mobile Provider</Label>
+                              <RadioGroup 
+                                defaultValue="mtn" 
+                                className="flex flex-col space-y-2"
+                                onValueChange={(value) => setBookingData({...bookingData, mobileProvider: value})}
+                                disabled={bookingData.paymentCompleted}
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="mtn" id="mtn" />
+                                  <Label htmlFor="mtn">MTN Mobile Money</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="vodafone" id="vodafone" />
+                                  <Label htmlFor="vodafone">Vodafone Cash</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="airteltigo" id="airteltigo" />
+                                  <Label htmlFor="airteltigo">AirtelTigo Money</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="telecel" id="telecel" />
+                                  <Label htmlFor="telecel">Telecel Cash</Label>
+                                </div>
+                              </RadioGroup>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="mobileNumber">Mobile Number</Label>
+                              <div className="relative">
+                                <Input 
+                                  id="mobileNumber"
+                                  name="mobileNumber"
+                                  placeholder="e.g., 0241234567"
+                                  value={bookingData.mobileNumber}
+                                  onChange={handleInputChange}
+                                  disabled={bookingData.paymentCompleted}
+                                />
+                                <Smartphone className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                You will receive a prompt on your phone to authorize the payment.
+                              </p>
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="bank" className="space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="bankName">Bank Name</Label>
+                              <Select 
+                                onValueChange={(value) => setBookingData({...bookingData, bankName: value})}
+                                disabled={bookingData.paymentCompleted}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select your bank" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="ecobank">Ecobank</SelectItem>
+                                  <SelectItem value="gcb">Ghana Commercial Bank</SelectItem>
+                                  <SelectItem value="stanbic">Stanbic Bank</SelectItem>
+                                  <SelectItem value="absa">Absa Bank</SelectItem>
+                                  <SelectItem value="calbank">CalBank</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="bankAccountNumber">Account Number</Label>
+                              <div className="relative">
+                                <Input 
+                                  id="bankAccountNumber"
+                                  name="bankAccountNumber"
+                                  placeholder="Enter your account number"
+                                  value={bookingData.bankAccountNumber}
+                                  onChange={handleInputChange}
+                                  disabled={bookingData.paymentCompleted}
+                                />
+                                <Building className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                              </div>
+                            </div>
+                            
+                            <div className="p-4 bg-yellow-50 rounded border border-yellow-200">
+                              <div className="flex items-start">
+                                <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5 mr-3" />
+                                <div>
+                                  <p className="font-medium text-yellow-800">Bank Transfer Information</p>
+                                  <p className="text-sm text-yellow-700">
+                                    After submitting your booking, we'll send you the bank details for the transfer. 
+                                    Your booking will be confirmed once payment is verified.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="paystack" className="space-y-4">
+                            <div className="p-4 bg-green-50 rounded border border-green-200 mb-4">
+                              <div className="flex items-start">
+                                <Check className="h-5 w-5 text-green-500 mt-0.5 mr-3" />
+                                <div>
+                                  <p className="font-medium text-green-800">Secure Online Payment</p>
+                                  <p className="text-sm text-green-700">
+                                    Pay securely with Paystack. You'll be redirected to complete your payment.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex justify-center">
+                              <img 
+                                src="https://paystack.com/assets/img/logos/paystack-logo.png" 
+                                alt="Paystack" 
+                                className="h-10 mb-4"
                               />
                             </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="cvv">CVV</Label>
-                              <Input 
-                                id="cvv"
-                                name="cvv"
-                                placeholder="123"
-                                disabled
-                                defaultValue="***"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                            
+                            <p className="text-center text-sm text-gray-600">
+                              You'll be redirected to Paystack to complete your payment securely.
+                            </p>
+                          </TabsContent>
+                        </Tabs>
                         
-                        <p className="text-xs text-gray-500 mt-4">
-                          This is a demo. No actual payment will be processed. In a real application, 
-                          secure payment processing would be implemented here.
-                        </p>
+                        {!bookingData.paymentCompleted && (
+                          <Button 
+                            type="button" 
+                            onClick={handleProcessPayment}
+                            className="w-full mt-4"
+                          >
+                            Process Payment
+                          </Button>
+                        )}
+                        
+                        {bookingData.paymentCompleted && (
+                          <div className="p-3 bg-green-50 rounded flex items-center mt-4">
+                            <Check className="h-5 w-5 text-green-600 mr-2" />
+                            <span className="text-green-700">Payment completed successfully!</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     

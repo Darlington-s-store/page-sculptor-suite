@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import CarsPage from "./pages/CarsPage";
@@ -18,33 +19,35 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          
-          {/* Cars Routes */}
-          <Route path="/cars" element={<CarsPage />} />
-          <Route path="/cars/:id" element={<CarDetails />} />
-          
-          {/* Hotels Routes */}
-          <Route path="/hotels" element={<HotelsPage />} />
-          <Route path="/hotels/:id" element={<HotelDetail />} />
-          
-          {/* Tours Routes */}
-          <Route path="/tours" element={<ToursPage />} />
-          <Route path="/tours/:id" element={<TourDetail />} />
-          
-          {/* Booking Routes */}
-          <Route path="/booking/:type/:id" element={<BookingPage />} />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            
+            {/* Cars Routes */}
+            <Route path="/cars" element={<CarsPage />} />
+            <Route path="/cars/:id" element={<CarDetails />} />
+            
+            {/* Hotels Routes */}
+            <Route path="/hotels" element={<HotelsPage />} />
+            <Route path="/hotels/:id" element={<HotelDetail />} />
+            
+            {/* Tours Routes */}
+            <Route path="/tours" element={<ToursPage />} />
+            <Route path="/tours/:id" element={<TourDetail />} />
+            
+            {/* Booking Routes */}
+            <Route path="/booking/:type/:id" element={<BookingPage />} />
+            
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

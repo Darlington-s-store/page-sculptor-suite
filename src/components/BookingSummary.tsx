@@ -4,7 +4,8 @@ import { Shield, Check } from 'lucide-react';
 
 interface PriceDetails {
   basePrice: number;
-  insuranceCost: number;
+  insuranceCost?: number;
+  taxFee?: number;
   serviceFee: number;
   total: number;
 }
@@ -37,7 +38,9 @@ const BookingSummary = ({ item, type, duration, dates, priceDetails }: BookingSu
           <div>
             <h3 className="font-medium">{item.name || item.title}</h3>
             <p className="text-sm text-gray-600">
-              {type === 'car' ? `${item.category} - ${item.transmission}` : ''}
+              {type === 'car' ? `${item.category} - ${item.transmission}` : 
+               type === 'hotel' ? `${item.location} - ${item.rating} Stars` :
+               type === 'tour' ? `${item.location} - ${item.duration}` : ''}
             </p>
           </div>
         </div>
@@ -57,10 +60,17 @@ const BookingSummary = ({ item, type, duration, dates, priceDetails }: BookingSu
             <span>${priceDetails.basePrice}</span>
           </div>
           
-          {priceDetails.insuranceCost > 0 && (
+          {priceDetails.insuranceCost && priceDetails.insuranceCost > 0 && (
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Insurance</span>
               <span>${priceDetails.insuranceCost}</span>
+            </div>
+          )}
+          
+          {priceDetails.taxFee && priceDetails.taxFee > 0 && (
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Tax</span>
+              <span>${priceDetails.taxFee}</span>
             </div>
           )}
           
