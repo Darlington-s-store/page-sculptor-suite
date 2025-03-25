@@ -99,13 +99,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
         
-        // Create new user
+        // Create new user with a default phone value
         const newUser = {
           id: `${mockUsers.length + 1}`,
           firstName,
           lastName,
           email,
-          password
+          password,
+          phone: '' // Add a default empty string for phone
         };
         
         // In a real app, this would be an API call to register the user
