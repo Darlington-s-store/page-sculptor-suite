@@ -28,7 +28,7 @@ class Payment {
         $query = "INSERT INTO " . $this->table_name . "
                   SET id=:id, bookingId=:bookingId, userId=:userId, 
                       amount=:amount, paymentMethod=:paymentMethod, status=:status,
-                      transactionId=:transactionId, paymentDetails=:paymentDetails,
+                      transactionId=:transactionId, paymentDetails=:paymentDetails, 
                       createdAt=:createdAt, updatedAt=:updatedAt";
 
         // Prepare query
@@ -41,9 +41,21 @@ class Payment {
         $this->amount = htmlspecialchars(strip_tags($this->amount));
         $this->paymentMethod = htmlspecialchars(strip_tags($this->paymentMethod));
         $this->status = htmlspecialchars(strip_tags($this->status));
-        $this->transactionId = htmlspecialchars(strip_tags($this->transactionId));
-        // JSON encode the payment details
-        $this->paymentDetails = json_encode($this->paymentDetails);
+        $this->transactionId = $this->transactionId ? htmlspecialchars(strip_tags($this->transactionId)) : null;
+        
+        // For JSON data we need to handle it differently
+        if (is_array($this->paymentDetails)) {
+            $this->paymentDetails = json_encode($this->paymentDetails);
+        } else if (is_string($this->paymentDetails) && !empty($this->paymentDetails)) {
+            // Check if already JSON
+            json_decode($this->paymentDetails);
+            if (json_last_error() != JSON_ERROR_NONE) {
+                $this->paymentDetails = json_encode($this->paymentDetails);
+            }
+        } else {
+            $this->paymentDetails = null;
+        }
+        
         $this->createdAt = date('Y-m-d H:i:s');
         $this->updatedAt = date('Y-m-d H:i:s');
 
@@ -81,43 +93,7 @@ class Payment {
         return $stmt;
     }
 
-    // Read one payment
-    public function readOne() {
-        // Query to read single record
-        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ?";
-
-        // Prepare query statement
-        $stmt = $this->conn->prepare($query);
-
-        // Bind id of payment to be selected
-        $stmt->bindParam(1, $this->id);
-
-        // Execute query
-        $stmt->execute();
-
-        // Get retrieved row
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Set values to object properties
-        if($row) {
-            $this->id = $row['id'];
-            $this->bookingId = $row['bookingId'];
-            $this->userId = $row['userId'];
-            $this->amount = $row['amount'];
-            $this->paymentMethod = $row['paymentMethod'];
-            $this->status = $row['status'];
-            $this->transactionId = $row['transactionId'];
-            // JSON decode the payment details
-            $this->paymentDetails = json_decode($row['paymentDetails'], true);
-            $this->createdAt = $row['createdAt'];
-            $this->updatedAt = $row['updatedAt'];
-            return true;
-        }
-        
-        return false;
-    }
-
-    // Get payments by booking ID
+    // Read payments by booking ID
     public function getPaymentsByBookingId() {
         // Query to get payments by booking ID
         $query = "SELECT * FROM " . $this->table_name . " WHERE bookingId = ?";

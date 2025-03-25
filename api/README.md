@@ -28,20 +28,22 @@ This folder contains a simple PHP REST API for the Travel Booking application. I
      private $password = "your_password";
      ```
 
-3. **Deploy the API**
+3. **Seed the database with sample data**
+   - Run the seeding script to populate the database with sample records:
+     ```
+     php api/db/seed_database.php
+     ```
+
+4. **Deploy the API**
    - Copy all files in this folder to your web server's document root or a subdirectory.
    - For example, if you're using XAMPP, copy to `htdocs/travel-api/`.
 
-4. **Update the frontend API configuration**
+5. **Update the frontend API configuration**
    - Open `src/services/api.ts` in your React frontend
    - Set the `API_BASE_URL` to match your PHP API location:
      ```javascript
      const API_BASE_URL = 'http://localhost/travel-api/api';
      ```
-
-5. **Test the API**
-   - Use a tool like Postman to test your endpoints
-   - Example: `POST http://localhost/travel-api/api/users/create.php` with user data
 
 ## API Endpoints
 
@@ -52,9 +54,11 @@ This folder contains a simple PHP REST API for the Travel Booking application. I
 ### Bookings
 - `POST /bookings/create.php` - Create a new booking
 - `GET /bookings/read_by_user.php?userId=X` - Get all bookings for a user
+- `PUT /bookings/update.php` - Update a booking status
 
 ### Payments
-- Additional endpoints for payment processing
+- `POST /payments/create.php` - Process a new payment
+- `GET /payments/read_by_booking.php?bookingId=X` - Get all payments for a booking
 
 ## Security Considerations
 
