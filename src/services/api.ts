@@ -39,6 +39,60 @@ export const userApi = {
       throw error;
     }
   },
+
+  getAllUsers: async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/read.php`);
+      return await response.json();
+    } catch (error) {
+      console.error('Get all users error:', error);
+      throw error;
+    }
+  },
+  
+  getUserById: async (userId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/read_one.php?id=${userId}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Get user error:', error);
+      throw error;
+    }
+  },
+  
+  updateUser: async (userData: any) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/update.php`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Update user error:', error);
+      throw error;
+    }
+  },
+  
+  deleteUser: async (userId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/delete.php`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: userId }),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Delete user error:', error);
+      throw error;
+    }
+  },
 };
 
 // Booking API endpoints
@@ -71,6 +125,26 @@ export const bookingApi = {
     }
   },
   
+  getAllBookings: async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/bookings/read.php`);
+      return await response.json();
+    } catch (error) {
+      console.error('Get all bookings error:', error);
+      throw error;
+    }
+  },
+  
+  getBookingById: async (bookingId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/bookings/read_one.php?id=${bookingId}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Get booking error:', error);
+      throw error;
+    }
+  },
+  
   updateBookingStatus: async (bookingId: string, status: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/bookings/update.php`, {
@@ -84,6 +158,23 @@ export const bookingApi = {
       return await response.json();
     } catch (error) {
       console.error('Update booking status error:', error);
+      throw error;
+    }
+  },
+  
+  deleteBooking: async (bookingId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/bookings/delete.php`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: bookingId }),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Delete booking error:', error);
       throw error;
     }
   },
@@ -115,6 +206,107 @@ export const paymentApi = {
       return await response.json();
     } catch (error) {
       console.error('Get payments by booking error:', error);
+      throw error;
+    }
+  },
+  
+  getAllPayments: async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/payments/read.php`);
+      return await response.json();
+    } catch (error) {
+      console.error('Get all payments error:', error);
+      throw error;
+    }
+  },
+  
+  getPaymentById: async (paymentId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/payments/read_one.php?id=${paymentId}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Get payment error:', error);
+      throw error;
+    }
+  },
+  
+  updatePayment: async (paymentData: any) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/payments/update.php`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Update payment error:', error);
+      throw error;
+    }
+  },
+  
+  deletePayment: async (paymentId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/payments/delete.php`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: paymentId }),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Delete payment error:', error);
+      throw error;
+    }
+  },
+};
+
+// Customer service API
+export const customerServiceApi = {
+  submitContactForm: async (contactData: any) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/support/contact.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contactData),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Contact form submission error:', error);
+      throw error;
+    }
+  },
+  
+  getTickets: async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/support/tickets.php`);
+      return await response.json();
+    } catch (error) {
+      console.error('Get tickets error:', error);
+      throw error;
+    }
+  },
+  
+  updateTicket: async (ticketData: any) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/support/update_ticket.php`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ticketData),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Update ticket error:', error);
       throw error;
     }
   },

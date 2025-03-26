@@ -16,6 +16,11 @@ import ToursPage from "./pages/ToursPage";
 import TourDetail from "./pages/TourDetail";
 import UserDashboard from "./pages/UserDashboard";
 
+// Admin Pages
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import UsersPage from "./pages/Admin/UsersPage";
+import BookingsPage from "./pages/Admin/BookingsPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -45,6 +50,11 @@ const App = () => (
             
             {/* User Dashboard */}
             <Route path="/dashboard" element={<UserDashboard />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<UsersPage />} />
+            <Route path="/admin/bookings" element={<BookingsPage />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -14,6 +14,8 @@ import CategorySearchHeader from '@/components/home/CategorySearchHeader';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
 import BlogSection from '@/components/home/BlogSection';
 import SubscribeSection from '@/components/home/SubscribeSection';
+import CustomerServiceSection from '@/components/home/CustomerServiceSection';
+import WhatsAppButton from '@/components/WhatsAppButton';
 
 const Home = () => {
   useEffect(() => {
@@ -53,6 +55,9 @@ const Home = () => {
         </div>
       </section>
       
+      {/* Customer Service Section */}
+      <CustomerServiceSection />
+      
       {/* Testimonials */}
       <TestimonialsSection />
       
@@ -63,6 +68,9 @@ const Home = () => {
       <SubscribeSection />
       
       <Footer />
+      
+      {/* Floating WhatsApp Button */}
+      <WhatsAppButton />
     </div>
   );
 };
