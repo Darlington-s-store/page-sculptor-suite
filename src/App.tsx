@@ -14,6 +14,7 @@ import HotelsPage from "./pages/HotelsPage";
 import HotelDetail from "./pages/HotelDetail";
 import ToursPage from "./pages/ToursPage";
 import TourDetail from "./pages/TourDetail";
+import UserDashboard from "./pages/UserDashboard";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,9 @@ const App = () => (
             
             {/* Booking Routes */}
             <Route path="/booking/:type/:id" element={<BookingPage />} />
+            
+            {/* User Dashboard */}
+            <Route path="/dashboard" element={<UserDashboard />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

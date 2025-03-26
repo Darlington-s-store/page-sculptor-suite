@@ -70,9 +70,52 @@ export const bookingApi = {
       throw error;
     }
   },
+  
+  updateBookingStatus: async (bookingId: string, status: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/bookings/update.php`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: bookingId, status }),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Update booking status error:', error);
+      throw error;
+    }
+  },
 };
 
-// Payment API endpoints - add as needed
+// Payment API endpoints
 export const paymentApi = {
-  // Add payment API methods here
+  createPayment: async (paymentData: any) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/payments/create.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Payment creation error:', error);
+      throw error;
+    }
+  },
+  
+  getPaymentsByBookingId: async (bookingId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/payments/read_by_booking.php?bookingId=${bookingId}`);
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Get payments by booking error:', error);
+      throw error;
+    }
+  },
 };
