@@ -16,11 +16,21 @@ import BlogSection from '@/components/home/BlogSection';
 import SubscribeSection from '@/components/home/SubscribeSection';
 import CustomerServiceSection from '@/components/home/CustomerServiceSection';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import { useToast } from '@/hooks/use-toast';
 
 const Home = () => {
+  const { toast } = useToast();
+  
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Welcome toast to enhance the user experience
+    toast({
+      title: "Welcome to TravelGo",
+      description: "Find and book your perfect vacation with us!",
+      duration: 5000,
+    });
+  }, [toast]);
 
   return (
     <div className="min-h-screen">
