@@ -10,7 +10,7 @@ const Footer = () => {
           <div>
             <Link to="/" className="flex items-center space-x-2 mb-6">
               <span className="font-display font-bold text-2xl text-brand-yellow">
-                Travel<span className="text-white">Go</span>
+               MY Travel<span className="text-white">Go</span>
               </span>
             </Link>
             <p className="text-gray-400 mb-6">
@@ -61,15 +61,15 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-brand-yellow mr-3 mt-1 flex-shrink-0" />
-                <span className="text-gray-400">123 Travel Street, Tourism City, TC 54321</span>
+                <span className="text-gray-400">IPT - Kumasi, Ashanti City, Ghana</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 text-brand-yellow mr-3 flex-shrink-0" />
-                <span className="text-gray-400">+1 (555) 123-4567</span>
+                <span className="text-gray-400">+233 (552) 945-333</span>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 text-brand-yellow mr-3 flex-shrink-0" />
-                <span className="text-gray-400">info@travelgo.com</span>
+                <span className="text-gray-400">info@mytravelgo.com</span>
               </li>
             </ul>
           </div>
@@ -97,7 +97,7 @@ const Footer = () => {
         
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} TravelGo. All rights reserved.
+            &copy; {new Date().getFullYear()} TravelGo. All rights reserved. <br/> Designed by K. Darlington Jnr
           </p>
           <div className="flex space-x-4">
             <Link to="/terms" className="text-gray-400 text-sm hover:text-brand-yellow transition-colors">
