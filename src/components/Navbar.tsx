@@ -1,12 +1,22 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Search, ShoppingCart, Globe, ChevronDown, User } from 'lucide-react';
+import { Menu, X, Search, ShoppingCart, Globe, ChevronDown, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +32,12 @@ const Navbar = () => {
   }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user) return "U";
+    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
+  };
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
@@ -66,11 +82,52 @@ const Navbar = () => {
             <button className={`p-2 rounded-full hover:bg-white/10 transition-colors ${scrolled ? 'text-gray-800' : 'text-white'}`}>
               <Globe className="h-5 w-5" />
             </button>
-            <Link to="/login">
-              <Button variant="outline" className={`font-medium border ${scrolled ? 'border-brand-blue text-brand-blue' : 'border-white text-white'}`}>
-                <User className="h-4 w-4 mr-2" /> Account
-              </Button>
-            </Link>
+            
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10 border-2 border-white">
+                      <AvatarFallback className="bg-brand-blue text-white">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex flex-col space-y-1 p-2">
+                    <p className="text-sm font-medium">{user?.firstName} {user?.lastName}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="cursor-pointer flex w-full items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  {user?.role === 'admin' && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer flex w-full items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" className={`font-medium border ${scrolled ? 'border-brand-blue text-brand-blue' : 'border-white text-white'}`}>
+                  <User className="h-4 w-4 mr-2" /> Account
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -135,11 +192,41 @@ const Navbar = () => {
                   <Globe className="h-5 w-5" />
                 </button>
               </div>
-              <Link to="/login" className="block w-full">
-                <Button className="w-full bg-brand-blue text-white">
-                  <User className="h-4 w-4 mr-2" /> Account
-                </Button>
-              </Link>
+              {isAuthenticated ? (
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2 p-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-brand-blue text-white">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">{user?.firstName} {user?.lastName}</p>
+                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    </div>
+                  </div>
+                  <Link to="/dashboard" className="flex items-center p-2 hover:bg-gray-100 rounded-md">
+                    <User className="h-4 w-4 mr-2" />
+                    <span>Dashboard</span>
+                  </Link>
+                  {user?.role === 'admin' && (
+                    <Link to="/admin" className="flex items-center p-2 hover:bg-gray-100 rounded-md">
+                      <Settings className="h-4 w-4 mr-2" />
+                      <span>Admin Panel</span>
+                    </Link>
+                  )}
+                  <button onClick={logout} className="flex w-full items-center p-2 hover:bg-gray-100 rounded-md">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    <span>Log out</span>
+                  </button>
+                </div>
+              ) : (
+                <Link to="/auth" className="block w-full">
+                  <Button className="w-full bg-brand-blue text-white">
+                    <User className="h-4 w-4 mr-2" /> Account
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>

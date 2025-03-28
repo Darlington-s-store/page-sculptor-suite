@@ -16,6 +16,7 @@ import HotelDetail from "./pages/HotelDetail";
 import ToursPage from "./pages/ToursPage";
 import TourDetail from "./pages/TourDetail";
 import UserDashboard from "./pages/UserDashboard";
+import Auth from "./pages/Auth";
 
 // Admin Pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -42,6 +43,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/index" element={<Navigate to="/" replace />} />
+            
+            {/* Auth Route */}
+            <Route path="/auth" element={<Auth />} />
             
             {/* Cars Routes */}
             <Route path="/cars" element={<CarsPage />} />
