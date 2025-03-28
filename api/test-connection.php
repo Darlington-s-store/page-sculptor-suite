@@ -14,12 +14,32 @@ $conn = $database->getConnection();
 // Check connection
 if($conn) {
     // Connection successful
-    http_response_code(200);
-    echo json_encode([
-        "status" => "success",
-        "message" => "Database connection established successfully",
-        "timestamp" => date('Y-m-d H:i:s')
-    ]);
+    try {
+        // Test query
+        $stmt = $conn->query("SELECT DATABASE() as db_name");
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $dbName = $result['db_name'];
+        
+        // Check if tables exist
+        $stmt = $conn->query("SHOW TABLES");
+        $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        http_response_code(200);
+        echo json_encode([
+            "status" => "success",
+            "message" => "Database connection established successfully",
+            "database" => $dbName,
+            "tables" => $tables,
+            "timestamp" => date('Y-m-d H:i:s')
+        ]);
+    } catch(PDOException $e) {
+        http_response_code(500);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Database connected but query failed: " . $e->getMessage(),
+            "timestamp" => date('Y-m-d H:i:s')
+        ]);
+    }
 } else {
     // Connection failed
     http_response_code(500);

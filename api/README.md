@@ -1,70 +1,75 @@
 
-# Travel Booking PHP Backend API
+# TravelGo API - Setup Guide
 
-This folder contains a simple PHP REST API for the Travel Booking application. It connects to a MySQL database to store and retrieve data.
+This document provides instructions for setting up and using the TravelGo API.
 
-## Requirements
+## Prerequisites
 
 - PHP 7.4 or higher
 - MySQL 5.7 or higher
-- Apache or Nginx web server
+- Apache/Nginx web server
 
-## Setup Instructions
+## Database Setup
 
-1. **Set up the database**
-   - Import the database schema from `db/schema.sql` into your MySQL server.
-   - You can use phpMyAdmin or MySQL command line:
-     ```
-     mysql -u username -p < db/schema.sql
-     ```
+1. Create a MySQL database named `travel_booking`
+2. Import the schema from `api/db/schema.sql`
+3. For sample data, run `api/db/seed_database.php`
 
-2. **Configure the database connection**
-   - Open `config/Database.php`
-   - Update the database credentials:
-     ```php
-     private $host = "localhost";
-     private $db_name = "travel_booking";
-     private $username = "your_username";
-     private $password = "your_password";
-     ```
+## Configuration
 
-3. **Seed the database with sample data**
-   - Run the seeding script to populate the database with sample records:
-     ```
-     php api/db/seed_database.php
-     ```
+Edit the database connection settings in `api/config/Database.php`:
 
-4. **Deploy the API**
-   - Copy all files in this folder to your web server's document root or a subdirectory.
-   - For example, if you're using XAMPP, copy to `htdocs/travel-api/`.
+```php
+private $host = "localhost"; // Your database host
+private $db_name = "travel_booking"; // Your database name
+private $username = "root"; // Your database username
+private $password = ""; // Your database password
+```
 
-5. **Update the frontend API configuration**
-   - Open `src/services/api.ts` in your React frontend
-   - Set the `API_BASE_URL` to match your PHP API location:
-     ```javascript
-     const API_BASE_URL = 'http://localhost/travel-api/api';
-     ```
+## Test Connection
+
+Open `http://your-server/api/test-connection.php` to verify that the API can connect to the database.
 
 ## API Endpoints
 
+The main API endpoints are:
+
 ### Users
-- `POST /users/create.php` - Register a new user
-- `POST /users/login.php` - Authenticate a user
+- POST `/users/create.php` - Create a new user
+- POST `/users/login.php` - User login
+- GET `/users/read.php` - Get all users
+- GET `/users/read_one.php?id={user_id}` - Get user by ID
+- PUT `/users/update.php` - Update user information
 
 ### Bookings
-- `POST /bookings/create.php` - Create a new booking
-- `GET /bookings/read_by_user.php?userId=X` - Get all bookings for a user
-- `PUT /bookings/update.php` - Update a booking status
+- POST `/bookings/create.php` - Create a new booking
+- GET `/bookings/read.php` - Get all bookings
+- GET `/bookings/read_one.php?id={booking_id}` - Get booking by ID
+- GET `/bookings/read_by_user.php?userId={user_id}` - Get bookings by user ID
+- PUT `/bookings/update.php` - Update booking status
 
 ### Payments
-- `POST /payments/create.php` - Process a new payment
-- `GET /payments/read_by_booking.php?bookingId=X` - Get all payments for a booking
+- POST `/payments/create.php` - Create a new payment
+- GET `/payments/read_by_booking.php?bookingId={booking_id}` - Get payments by booking ID
 
-## Security Considerations
+## Usage Example
 
-This is a basic implementation. For production use, consider:
-- Implementing JWT authentication
-- Adding CSRF protection
-- Setting up proper CORS headers
-- Using a .env file for environment variables
-- Adding input validation
+Example POST request to create a user:
+
+```javascript
+fetch('http://your-server/api/users/create.php', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+    password: 'secure_password',
+    phone: '+233 20 123 4567'
+  }),
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
