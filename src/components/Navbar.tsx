@@ -46,7 +46,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <span className="font-display font-bold text-xl md:text-2xl text-brand-yellow">
-              Travel<span className={scrolled ? 'text-black' : 'text-white'}>Go</span>
+              My Travel<span className={scrolled ? 'text-black' : 'text-white'}>Go</span>
             </span>
           </Link>
 
