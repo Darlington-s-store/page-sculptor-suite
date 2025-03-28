@@ -7,11 +7,13 @@ const Index = () => {
   
   useEffect(() => {
     // Redirect to Home immediately
-    navigate('/', { replace: true });
+    navigate('/home', { replace: true });
   }, [navigate]);
   
   // Return empty div while redirecting
-  return <div className="min-h-screen bg-gray-50"></div>;
+  return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <p className="text-gray-500">Redirecting to homepage...</p>
+  </div>;
 };
 
 export default Index;

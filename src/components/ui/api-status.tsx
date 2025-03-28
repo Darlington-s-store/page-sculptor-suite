@@ -1,5 +1,5 @@
 
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 export function ApiLoading({ message = "Loading..." }: { message?: string }) {
   return (
@@ -14,6 +14,7 @@ export function ApiError({ message = "Something went wrong", retry }: { message?
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4">
       <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4 text-center max-w-md">
+        <AlertCircle className="h-6 w-6 mx-auto mb-2" />
         <p className="font-medium mb-1">Error</p>
         <p className="text-sm">{message}</p>
       </div>
@@ -26,6 +27,16 @@ export function ApiError({ message = "Something went wrong", retry }: { message?
           Try Again
         </button>
       )}
+    </div>
+  );
+}
+
+export function ApiEmpty({ message = "No data found" }: { message?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 px-4">
+      <div className="bg-gray-50 p-6 rounded-lg text-center max-w-md">
+        <p className="text-gray-500">{message}</p>
+      </div>
     </div>
   );
 }
