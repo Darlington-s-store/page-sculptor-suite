@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import AnimatedSection from '@/components/AnimatedSection';
 
 const CustomerServiceSection = () => {
-  const whatsappNumber = "+1234567890"; // Replace with your actual WhatsApp number
+  const whatsappNumber = "+233 552945333"; // Replace with your actual WhatsApp number
   const openWhatsApp = () => {
     window.open(`https://wa.me/${whatsappNumber}?text=Hello%20TravelGo,%20I%20need%20assistance%20with`, '_blank');
   };
@@ -31,8 +31,8 @@ const CustomerServiceSection = () => {
                   <div>
                     <h3 className="font-bold text-lg">Call Us</h3>
                     <p className="text-gray-600 mb-2">For immediate assistance</p>
-                    <a href="tel:+11234567890" className="text-brand-yellow font-medium hover:underline">
-                      +1 (234) 567-890
+                    <a href="tel:+233 552945333" className="text-brand-yellow font-medium hover:underline">
+                      +233 (552) 945-333
                     </a>
                   </div>
                 </div>
@@ -61,8 +61,8 @@ const CustomerServiceSection = () => {
                   <div>
                     <h3 className="font-bold text-lg">Email Us</h3>
                     <p className="text-gray-600 mb-2">For detailed inquiries</p>
-                    <a href="mailto:support@travelgo.com" className="text-blue-500 font-medium hover:underline">
-                      support@travelgo.com
+                    <a href="mailto:support@mytravelgo.com" className="text-blue-500 font-medium hover:underline">
+                      support@mytravelgo.com
                     </a>
                   </div>
                 </div>
