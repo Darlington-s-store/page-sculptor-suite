@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
+    role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
     createdAt DATETIME NOT NULL,
     updatedAt DATETIME NOT NULL
 );
@@ -52,3 +53,7 @@ CREATE TABLE IF NOT EXISTS payments (
 CREATE INDEX idx_user_email ON users(email);
 CREATE INDEX idx_booking_user ON bookings(userId);
 CREATE INDEX idx_payment_booking ON payments(bookingId);
+
+-- Insert default admin user with password: admin123
+INSERT INTO users (id, firstName, lastName, email, password, role, createdAt, updatedAt) 
+VALUES ('admin_1', 'Admin', 'User', 'admin@travelgo.com', '$2y$10$8zf0SX.RVWoMZF07B8lM6e7E5mlJwFqOOQRcPmVQvDIzWBRMfe3LG', 'admin', NOW(), NOW());

@@ -1,12 +1,14 @@
 
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, Users, CreditCard, LogOut, ShoppingCart, 
-  Settings, BarChart2, MessageCircle, Menu, X 
+  Settings, BarChart2, MessageCircle, Menu, X, AlertTriangle 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -16,7 +18,21 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout, isAuthenticated, isAdmin } = useAuth();
+  
+  // Check if user is authenticated and is an admin
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast.error('You must be logged in to access the admin area');
+      navigate('/');
+      return;
+    }
+    
+    if (!isAdmin) {
+      toast.error('Access denied. Admin privileges required.');
+      navigate('/');
+    }
+  }, [isAuthenticated, isAdmin, navigate]);
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -36,6 +52,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: 'Customer Support', href: '/admin/support', icon: MessageCircle },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
+  
+  if (!isAuthenticated || !isAdmin) {
+    return null; // Don't render anything if not authorized
+  }
   
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">
@@ -67,6 +87,13 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         </div>
         
         <div className="p-4">
+          <div className="mb-4 text-sm bg-brand-yellow/20 p-3 rounded">
+            <div className="font-medium text-brand-yellow">Logged in as Admin</div>
+            <div className="text-white/80 text-xs mt-1">
+              {user?.firstName} {user?.lastName}
+            </div>
+          </div>
+          
           <nav className="space-y-1">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;

@@ -10,6 +10,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 // Get database connection
 include_once '../config/Database.php';
 include_once '../models/User.php';
+include_once '../config/auth_utils.php';
 
 $database = new Database();
 $db = $database->getConnection();
@@ -31,39 +32,54 @@ if(
     if($user->getUserByEmail()) {
         // Verify the password
         if(password_verify($data->password, $user->password)) {
+            // JWT secret key - should be stored in a secure environment variable
+            $jwtSecret = "travelgo_jwt_secret_key";
+            
+            // Create token payload
+            $tokenPayload = [
+                'userId' => $user->id,
+                'email' => $user->email,
+                'role' => $user->role
+            ];
+            
+            // Generate JWT token
+            $token = generateJWT($tokenPayload, $jwtSecret, 86400); // 24 hours expiry
+            
             // Set response code - 200 OK
             http_response_code(200);
             
-            // Tell the user login success and return user data
-            echo json_encode(array(
+            // Tell the user login success and return user data with token
+            echo json_encode([
                 "message" => "Login successful.",
-                "user" => array(
+                "token" => $token,
+                "user" => [
                     "id" => $user->id,
                     "firstName" => $user->firstName,
                     "lastName" => $user->lastName,
                     "email" => $user->email,
-                    "phone" => $user->phone
-                )
-            ));
+                    "phone" => $user->phone,
+                    "role" => $user->role
+                ]
+            ]);
         } else {
             // Set response code - 401 Unauthorized
             http_response_code(401);
             
             // Tell the user login failed
-            echo json_encode(array("message" => "Invalid password."));
+            echo json_encode(["message" => "Invalid password."]);
         }
     } else {
         // Set response code - 404 Not found
         http_response_code(404);
         
         // Tell the user no user found
-        echo json_encode(array("message" => "User not found."));
+        echo json_encode(["message" => "User not found."]);
     }
 } else {
     // Set response code - 400 bad request
     http_response_code(400);
     
     // Tell the user
-    echo json_encode(array("message" => "Unable to login. Data is incomplete."));
+    echo json_encode(["message" => "Unable to login. Data is incomplete."]);
 }
 ?>

@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import CarsPage from "./pages/CarsPage";
@@ -57,13 +58,29 @@ const App = () => (
             {/* Booking Routes */}
             <Route path="/booking/:type/:id" element={<BookingPage />} />
             
-            {/* User Dashboard */}
-            <Route path="/dashboard" element={<UserDashboard />} />
+            {/* User Dashboard - Protected Route */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            } />
             
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/users" element={<UsersPage />} />
-            <Route path="/admin/bookings" element={<BookingsPage />} />
+            {/* Admin Routes - Protected Admin Routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute requireAdmin>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute requireAdmin>
+                <UsersPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/bookings" element={
+              <ProtectedRoute requireAdmin>
+                <BookingsPage />
+              </ProtectedRoute>
+            } />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

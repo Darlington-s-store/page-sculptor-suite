@@ -12,6 +12,7 @@ class User {
     public $email;
     public $password;
     public $phone;
+    public $role;
     public $createdAt;
     public $updatedAt;
 
@@ -25,7 +26,7 @@ class User {
         // Query to insert record
         $query = "INSERT INTO " . $this->table_name . "
                   SET id=:id, firstName=:firstName, lastName=:lastName, 
-                      email=:email, password=:password, phone=:phone,
+                      email=:email, password=:password, phone=:phone, role=:role,
                       createdAt=:createdAt, updatedAt=:updatedAt";
 
         // Prepare query
@@ -38,6 +39,10 @@ class User {
         $this->email = htmlspecialchars(strip_tags($this->email));
         $this->password = htmlspecialchars(strip_tags($this->password));
         $this->phone = htmlspecialchars(strip_tags($this->phone));
+        
+        // Set default role to user if not specified
+        $this->role = $this->role ? htmlspecialchars(strip_tags($this->role)) : 'user';
+        
         $this->createdAt = date('Y-m-d H:i:s');
         $this->updatedAt = date('Y-m-d H:i:s');
 
@@ -48,6 +53,7 @@ class User {
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":password", $this->password);
         $stmt->bindParam(":phone", $this->phone);
+        $stmt->bindParam(":role", $this->role);
         $stmt->bindParam(":createdAt", $this->createdAt);
         $stmt->bindParam(":updatedAt", $this->updatedAt);
 
@@ -98,6 +104,7 @@ class User {
             $this->email = $row['email'];
             $this->password = $row['password'];
             $this->phone = $row['phone'];
+            $this->role = $row['role'];
             $this->createdAt = $row['createdAt'];
             $this->updatedAt = $row['updatedAt'];
             return true;
@@ -131,6 +138,7 @@ class User {
             $this->email = $row['email'];
             $this->password = $row['password'];
             $this->phone = $row['phone'];
+            $this->role = $row['role'];
             $this->createdAt = $row['createdAt'];
             $this->updatedAt = $row['updatedAt'];
             return true;
@@ -144,7 +152,7 @@ class User {
         // Update query
         $query = "UPDATE " . $this->table_name . "
                 SET firstName=:firstName, lastName=:lastName, 
-                    email=:email, password=:password, phone=:phone,
+                    email=:email, password=:password, phone=:phone, role=:role,
                     updatedAt=:updatedAt
                 WHERE id=:id";
 
@@ -157,6 +165,7 @@ class User {
         $this->email = htmlspecialchars(strip_tags($this->email));
         $this->password = htmlspecialchars(strip_tags($this->password));
         $this->phone = htmlspecialchars(strip_tags($this->phone));
+        $this->role = htmlspecialchars(strip_tags($this->role));
         $this->updatedAt = date('Y-m-d H:i:s');
         $this->id = htmlspecialchars(strip_tags($this->id));
 
@@ -166,6 +175,7 @@ class User {
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":password", $this->password);
         $stmt->bindParam(":phone", $this->phone);
+        $stmt->bindParam(":role", $this->role);
         $stmt->bindParam(":updatedAt", $this->updatedAt);
         $stmt->bindParam(":id", $this->id);
 

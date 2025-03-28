@@ -7,35 +7,36 @@ import AdminStats from '@/components/admin/AdminStats';
 import RecentBookings from '@/components/admin/RecentBookings';
 import BookingChart from '@/components/admin/BookingChart';
 import RevenueChart from '@/components/admin/RevenueChart';
-import { bookingApi, paymentApi, userApi } from '@/services/api';
+import { bookingApi, adminApi } from '@/services/api';
 
 const AdminDashboard = () => {
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month' | 'year'>('month');
   
+  // Use the admin dashboard data endpoint
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+    queryKey: ['admin-dashboard'],
+    queryFn: adminApi.getDashboardData,
+  });
+  
+  // Fallback to separate queries if the dashboard endpoint fails
   const { data: bookings, isLoading: bookingsLoading } = useQuery({
     queryKey: ['admin-bookings'],
     queryFn: bookingApi.getAllBookings,
+    enabled: !dashboardData,
   });
   
-  const { data: payments, isLoading: paymentsLoading } = useQuery({
-    queryKey: ['admin-payments'],
-    queryFn: paymentApi.getAllPayments,
-  });
+  const loading = dashboardLoading || (bookingsLoading && !dashboardData);
   
-  const { data: users, isLoading: usersLoading } = useQuery({
-    queryKey: ['admin-users'],
-    queryFn: userApi.getAllUsers,
-  });
-  
-  const loading = bookingsLoading || paymentsLoading || usersLoading;
-  
-  // Calculate stats
-  const stats = {
+  // Use dashboard data if available, otherwise use fallback data
+  const stats = dashboardData?.stats || {
     totalBookings: bookings?.length || 0,
-    totalRevenue: payments ? payments.reduce((sum: number, payment: any) => sum + parseFloat(payment.amount), 0) : 0,
-    totalUsers: users?.length || 0,
-    pendingBookings: bookings ? bookings.filter((b: any) => b.status === 'pending').length : 0,
+    totalRevenue: 0,
+    totalUsers: 0,
+    pendingBookings: 0,
   };
+  
+  // Use dashboard data if available, otherwise use fallback data
+  const recentBookings = dashboardData?.recentBookings || (bookings?.slice(0, 10) || []);
 
   return (
     <AdminLayout>
@@ -63,12 +64,18 @@ const AdminDashboard = () => {
                     <option value="year">This Year</option>
                   </select>
                 </div>
-                <BookingChart bookings={bookings} timeframe={timeframe} />
+                <BookingChart 
+                  bookings={bookings || []} 
+                  timeframe={timeframe} 
+                />
               </div>
               
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-xl font-bold mb-6">Revenue Overview</h2>
-                <RevenueChart payments={payments} timeframe={timeframe} />
+                <RevenueChart 
+                  payments={dashboardData?.monthlyRevenue || []} 
+                  timeframe={timeframe} 
+                />
               </div>
             </div>
             
@@ -85,21 +92,25 @@ const AdminDashboard = () => {
                 
                 <TabsContent value="recent">
                   <RecentBookings 
-                    bookings={bookings?.slice(0, 10) || []} 
+                    bookings={recentBookings || []} 
                     type="recent"
                   />
                 </TabsContent>
                 
                 <TabsContent value="pending">
                   <RecentBookings 
-                    bookings={bookings?.filter((b: any) => b.status === 'pending').slice(0, 10) || []} 
+                    bookings={(recentBookings || []).filter(
+                      (b: any) => b.status === 'pending'
+                    )}
                     type="pending"
                   />
                 </TabsContent>
                 
                 <TabsContent value="confirmed">
                   <RecentBookings 
-                    bookings={bookings?.filter((b: any) => b.status === 'confirmed').slice(0, 10) || []} 
+                    bookings={(recentBookings || []).filter(
+                      (b: any) => b.status === 'confirmed'
+                    )}
                     type="confirmed"
                   />
                 </TabsContent>
