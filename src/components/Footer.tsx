@@ -97,7 +97,7 @@ const Footer = () => {
         
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} TravelGo. All rights reserved. <br/> Designed by K. Darlington Jnr
+            &copy; {new Date().getFullYear()} My TravelGo. All rights reserved. <br/> Designed by K. Darlington Jnr
           </p>
           <div className="flex space-x-4">
             <Link to="/terms" className="text-gray-400 text-sm hover:text-brand-yellow transition-colors">
