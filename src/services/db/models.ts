@@ -9,6 +9,7 @@ export interface User {
   email: string;
   password: string; // In a real app, this would be a hash
   phone?: string;
+  role?: 'user' | 'admin'; // Added role field to fix type error
   createdAt: string;
   updatedAt: string;
 }
