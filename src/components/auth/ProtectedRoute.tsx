@@ -3,6 +3,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { ApiLoading } from '@/components/ui/api-status';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -32,7 +33,22 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
         }
       } catch (error) {
         console.error('Auth verification error:', error);
-        setAuthorized(false);
+        
+        // If we have local authentication but can't connect to API, 
+        // we'll still authorize based on local data
+        if (isAuthenticated) {
+          // For admin routes, strictly enforce role check
+          if (requireAdmin && !isAdmin) {
+            toast.error('Admin access required for this page.');
+            setAuthorized(false);
+          } else {
+            // Allow access for regular protected routes in offline mode
+            toast.warning('Operating in offline mode. Some features may be limited.');
+            setAuthorized(true);
+          }
+        } else {
+          setAuthorized(false);
+        }
       } finally {
         setChecking(false);
       }
@@ -53,12 +69,12 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
 
   if (checking) {
     // Show a loading state while checking authentication
-    return <div className="flex items-center justify-center h-screen">Verifying authentication...</div>;
+    return <ApiLoading message="Verifying authentication..." />;
   }
 
   if (!authorized) {
     // Redirect to login with the return URL
-    return <Navigate to="/" state={{ from: location.pathname }} replace />;
+    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
 
   // If the user is authorized, render the children

@@ -1,13 +1,30 @@
 
 // API service to connect to the PHP backend
 
-// Base API URL - change this to your PHP API server's address
-const API_BASE_URL = 'http://localhost/travel-api/api';
+// Define a configurable API URL
+// This can be adjusted based on where your PHP API is hosted
+export const API_CONFIG = {
+  // Default URL - update this to match your PHP server location
+  baseUrl: 'http://localhost/travel-api/api',
+  // Timeout in milliseconds
+  timeout: 10000,
+  // Whether to use fallback local data when API is unavailable
+  useFallback: true
+};
 
 // Helper function to get the auth token
 const getToken = () => localStorage.getItem('token');
 
-// Generic API request function with auth header
+// Timeout promise for fetch requests
+const timeoutPromise = (ms: number) => {
+  return new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Request timed out after ${ms}ms`));
+    }, ms);
+  });
+};
+
+// Generic API request function with auth header and improved error handling
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   try {
     const token = getToken();
@@ -21,20 +38,39 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
       headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    // Use Promise.race to implement timeout
+    const response = await Promise.race([
+      fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
+        ...options,
+        headers,
+      }),
+      timeoutPromise(API_CONFIG.timeout)
+    ]);
     
     // Handle unauthorized responses
     if (response.status === 401) {
-      // Could trigger a logout action here
       console.error('Authentication error: Unauthorized');
+      // Could trigger logout here
+    }
+    
+    // Handle other error statuses
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorMessage;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.message || `Server error: ${response.status}`;
+      } catch (e) {
+        errorMessage = `Server error: ${response.status}`;
+      }
+      throw new Error(errorMessage);
     }
     
     return await response.json();
   } catch (error) {
     console.error(`API request error (${endpoint}):`, error);
+    
+    // Rethrow the error to be handled by the caller
     throw error;
   }
 };
